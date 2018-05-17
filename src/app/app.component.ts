@@ -43,9 +43,18 @@ export class AppComponent implements OnInit {
       () => {
         // upload success
         console.log("Success");
-        //upload.url = uploadTask.snapshot.downloadURL;
-        upload.name = upload.file.name;
-        //this.saveFileData(upload);
+        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+		    console.log('File available at', downloadURL);
+			upload.url = uploadTask.snapshot.downloadURL;
+		    upload.name = upload.file.name;
+
+		    //this.saveFileData(upload);
+
+		    //pass url to function for image rekognition
+		    //key = AIzaSyCHjMXfcJAtgz9F5izEanwoLyr14hOe4GM
+		    
+		});
+        
       }
     );
   }
