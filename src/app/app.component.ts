@@ -1,4 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 import { AngularFireDatabase } from 'angularfire2/database'; 
 import { FirebaseApp } from 'angularfire2';
 import 'firebase/storage';
@@ -14,11 +16,22 @@ export class AppComponent implements OnInit {
 
   private basePath:string = '/uploads';
   image: any;
+  objectAnalyzed: any;
   currentUpload: any;
+  analyzed = false;
+  analyzedImageUrl: any;
+  cloudVisionUrl = 'https://vision.googleapis.com/v1/images:annotate?key=AIzaSyCHjMXfcJAtgz9F5izEanwoLyr14hOe4GM';
+
+  httpOptions = {
+	  headers: new HttpHeaders({
+	    'Content-Type':  'application/json'
+	  })
+  };
 
   public constructor(
   	private af: FirebaseApp,
-  	private db: AngularFireDatabase){
+  	private db: AngularFireDatabase,
+  	private http: HttpClient){
   }
 
   ngOnInit(){}
@@ -43,22 +56,43 @@ export class AppComponent implements OnInit {
       () => {
         // upload success
         console.log("Success");
-        uploadTask.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-		    console.log('File available at', downloadURL);
-			upload.url = uploadTask.snapshot.downloadURL;
-		    upload.name = upload.file.name;
-
-		    //this.saveFileData(upload);
-
-		    //pass url to function for image rekognition
-		    //key = AIzaSyCHjMXfcJAtgz9F5izEanwoLyr14hOe4GM
-		    
-		});
-        
+        var imageUrl = uploadTask.snapshot.ref.getDownloadURL()
+        	.then(res => {
+        		this.analyzedImageUrl = res;
+        		this.analyzeImage(res)
+	        		.subscribe(result => {
+	        			console.log(result);
+	        			this.objectAnalyzed = result;
+	        			this.analyzed = true; 
+	        		});
+    		})
       }
     );
   }
 
+  public analyzeImage(imageUrl){
+  	//build data to be sent to cloud vision api
+  	let data = {
+	  "requests":[
+	    {
+	      "image":{
+	        "source":{
+	          "imageUri":
+	            imageUrl
+	        }
+	      },
+	      "features":[
+	        {
+	          "type":"LABEL_DETECTION",
+	          "maxResults":3
+	        }
+	      ]
+	    }
+	  ]
+	};
+
+  	return this.http.post(this.cloudVisionUrl, data, this.httpOptions);
+  }
 
   // Writes the file details to the realtime db
   //return image upload url

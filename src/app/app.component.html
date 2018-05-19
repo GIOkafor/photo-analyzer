@@ -1,6 +1,6 @@
 <div class="container">
 	<div id="app">
-    	<h3>Recycle This</h3>
+    	<h2>Recycle This</h2>
 
     	<div>
     		<label>
@@ -11,5 +11,16 @@
 	    <div>
 	    	<button class="btn btn-primary" [disabled]="!image" (click)="uploadSingle()">Upload Photo</button>
 	    </div>
+
+	    <div class="card" *ngIf="analyzed">
+		  <img class="card-img-top" [src]="analyzedImageUrl" alt="Card image cap">
+		  <div class="card-body">
+		    <h5 class="card-text">Image uploaded is either: </h5>
+
+		    <span class="result_text" *ngFor="let response of objectAnalyzed.responses[0].labelAnnotations; let last = last">
+		    	{{response.description}}<span *ngIf="!last">, </span>
+		    </span>
+		  </div>
+		</div>
 	</div>
 </div>
