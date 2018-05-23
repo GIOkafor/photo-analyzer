@@ -71,7 +71,9 @@ export class AppComponent implements OnInit {
   }
 
   public analyzeImage(imageUrl){
-  	//build data to be sent to cloud vision api
+  	console.log("Image url is: ", imageUrl);
+    
+    //build data to be sent to cloud vision api
   	let data = {
 	  "requests":[
 	    {
